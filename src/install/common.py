@@ -67,7 +67,7 @@ def _update_submodules():
     if is_repository == 0:
         git_output, git_code = execute_shell_command_get_return_code('(cd ../../ && git submodule foreach "git pull")')
         if git_code != 0:
-            raise InstallationError('Failed to update submodules\n{}'.format(git_output))
+            raise InstallationError(f'Failed to update submodules\n{git_output}')
     else:
         logging.warning('FACT is not set up using git. Note that *adding submodules* won\'t work!!')
 

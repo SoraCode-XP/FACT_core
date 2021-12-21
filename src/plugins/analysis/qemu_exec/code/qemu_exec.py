@@ -40,7 +40,7 @@ class Unpacker(UnpackBase):
             else self._get_file_path_from_db(file_object.uid)
         )
         if not file_path or not Path(file_path).is_file():
-            logging.error('could not unpack {}: file path not found'.format(file_object.uid))
+            logging.error(f'could not unpack {file_object.uid}: file path not found')
             return None
 
         extraction_dir = TemporaryDirectory(prefix='FACT_plugin_qemu_exec', dir=get_temp_dir_path(self.config))
@@ -135,7 +135,7 @@ class AnalysisPlugin(AnalysisBasePlugin):
             if path.is_file() and not path.is_symlink():
                 file_type = get_file_type_from_path(path.absolute())
                 if self._has_relevant_type(file_type):
-                    result.append(('/{}'.format(path.relative_to(Path(self.root_path))), file_type['full']))
+                    result.append((f'/{path.relative_to(Path(self.root_path))}', file_type['full']))
         return result
 
     def _find_root_path(self, extracted_files_dir: Path) -> Path:
@@ -265,7 +265,7 @@ def get_docker_output(arch_suffix: str, file_path: str, root_path: Path) -> dict
     }
     in case of an error, there will be an entry 'error' instead of the entries stdout/stderr/return_code
     '''
-    command = '{arch_suffix} {target}'.format(arch_suffix=arch_suffix, target=file_path)
+    command = f'{arch_suffix} {file_path}'
     try:
         return loads(run_docker_container(
             DOCKER_IMAGE, TIMEOUT_IN_SECONDS, command, reraise=True, mount=(CONTAINER_TARGET_PATH, str(root_path)),
@@ -294,8 +294,8 @@ def decode_output_values(result_dict: Dict[str, Dict[str, Union[str, int]]]) -> 
                 try:
                     str_value = b64decode(value.encode()).decode(errors='replace')
                 except binascii.Error:
-                    logging.warning('Error while decoding b64: {}'.format(value))
-                    str_value = 'decoding error: {}'.format(value)
+                    logging.warning(f'Error while decoding b64: {value}')
+                    str_value = f'decoding error: {value}'
             else:
                 str_value = str(value)
             result.setdefault(parameter, {})[key] = str_value
@@ -344,7 +344,7 @@ def merge_identical_results(results: Dict[str, Dict[str, str]]):
     '''
     for parameter_1, parameter_2 in itertools.combinations(results, 2):
         if results[parameter_1] == results[parameter_2]:
-            combined_key = '{}, {}'.format(parameter_1, parameter_2)
+            combined_key = f'{parameter_1}, {parameter_2}'
             results[combined_key] = results[parameter_1]
             results.pop(parameter_1)
             results.pop(parameter_2)
